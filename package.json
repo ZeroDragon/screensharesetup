@@ -1,0 +1,22 @@
+{
+  "name": "elpodcastsetup",
+  "productName": "el podcast setup",
+  "version": "1.0.0",
+  "description": "el podcast setup",
+  "main": "./src/index.js",
+  "scripts": {
+    "electron": "ENV=development electron .",
+    "build-mac": "electron-packager . --overwrite --prune --out=release --icon=./dist/icons/source.icns",
+    "package": "electron-installer-dmg release/Sound\\ Pannel-darwin-x64/Sound\\ Pannel.app Sound\\ Pannel --out=release --icon=dist/icons/source.png --title=Sound\\ Pannel --overwrite"
+  },
+  "author": "Zero Dragon",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^4.0.6",
+    "electron-installer-dmg": "^2.0.0",
+    "electron-packager": "^13.1.1"
+  },
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}

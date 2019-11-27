@@ -1,0 +1,6 @@
+{
+  "ext": "js,vue",
+  "ignore": [
+    "./dist/"
+  ]
+}
