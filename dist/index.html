@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>EL Podcast Dev</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .app * {
+        position: absolute;
+        box-sizing: border-box;
+      }
+      iframe {
+        border: none;
+      }
+      .overlayer, .background {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .background {
+        background: url(/bgsvg.svg) no-repeat top center;
+        background-size: cover;
+      }
+      .overlayer {
+        pointer-events: none;
+      }
+      .chat {
+        bottom: 10px;
+        left: 15px;
+        width: 360px;
+        height: 200px;
+      }
+      .logo {
+        top: 40px;
+        left: 10px;
+        height: 150px;
+        width: 360px;
+        object-fit: contain;
+      }
+      .browser {
+        top: 10px;
+        right: 10px;
+        height: calc(100% - 60px);
+        width: calc(100% - 400px);
+        overflow: auto;
+      }
+      .address {
+        border: none;
+        bottom: 10px;
+        right: 10px;
+        outline: none;
+        width: calc(100% - 400px);
+        height: 30px;
+        margin: 0;
+        font-size: 24px;
+        line-height: 30px;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app" class="app">
+      <div class="background"></div>
+      <webview class="browser" :src="browserUrl" ref="webview"></webview>
+      <input id="address" class="address" v-model="protoBrowserUrl" @keyup.enter="submit"/>
+      <iframe class="overlayer" src="http://localhost:3000/overlay"></iframe>
+      <img class="logo" src="/logo.png">
+      <iframe class="chat" src="http://localhost:3000/overlay-chat"></iframe>
+    </div>
+    <script>
+      let combo = false
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Meta') {
+          combo = true
+          return
+        }
+        if (combo && e.keyCode === 76) {
+          const address = document.getElementById('address')
+          address.focus()
+          address.select()
+        }
+      })
+      document.addEventListener('keyup', e => {
+        if (e.key === 'Meta') combo = false
+      })
+      const post = (url, data) => {
+        fetch(url, {
+          method: 'POST',
+          mode: 'cors',
+          cache: 'no-cache',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          redirect: 'follow',
+          referrer: 'no-referrer',
+          body: JSON.stringify(data)
+        });
+      }
+      const app = new Vue({
+        el: '#app',
+        data: {
+          browserUrl: 'https://elpodcast.dev',
+          protoBrowserUrl: 'https://elpodcast.dev'
+        },
+        methods: {
+          submit () {
+            const protocol = this.protoBrowserUrl.slice(0, 4)
+            if (protocol === 'ddg:') {
+              const search = this.protoBrowserUrl.split('ddg:')[1].trim()
+              this.protoBrowserUrl = `https://duckduckgo.com/?q=${search}`
+            } else if (protocol === 'opt:') {
+              const opt = this.protoBrowserUrl.split('opt:')[1].trim()
+              const [key, val] = opt.split('=')
+              const payload = {}
+              payload[key] = val
+              post('http://localhost:3242/opts', payload)
+              this.protoBrowserUrl = this.browserUrl
+              return
+            } else {
+              const tryUrl = (this.protoBrowserUrl.slice(0, 4) !== 'http') ? `https://${this.protoBrowserUrl}` : this.protoBrowserUrl
+              const reg = new RegExp(/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/)
+              const [url] = reg.exec(tryUrl) || [null]
+              this.protoBrowserUrl = url
+            }
+            this.browserUrl = ''
+            this.$nextTick(() => {
+              this.browserUrl = this.protoBrowserUrl
+            })
+          }
+        },
+        mounted () {
+          const webview = this.$refs.webview
+          webview.addEventListener('dom-ready', function () {
+            webview.insertCSS(
+              [
+                '::-webkit-scrollbar {width: 0;}',
+                'body{background-color:#FFF;}'
+              ].join('\n')
+            )
+            webview.setZoomFactor(0.9)
+          })
+        }
+      })
+    </script>
+  </body>
+</html>

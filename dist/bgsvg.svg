@@ -1,0 +1,11 @@
+<svg width="1366" height="746" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <linearGradient id="svg_6" x1="0" y1="0" x2="0" y2="1" spreadMethod="pad">
+   <stop stop-color="#5A91FF" offset="0"/>
+   <stop stop-color="#726AEC" offset="1"/>
+  </linearGradient>
+ </defs>
+ <g>
+  <path id="svg_9" d="M0,0 L1368,0 L1368,748 L0,748 L0,0 M32,232 L32,522 L382,522 L382,232 L32,232 z" stroke-width="1.5" stroke="none" fill="url(#svg_6)" fill-rule="evenodd"/>
+ </g>
+</svg>
